@@ -3,7 +3,6 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { vOnClickOutside } from '@vueuse/components';
 
-import BulkSelectBar from 'dashboard/components-next/captain/assistant/BulkSelectBar.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import LabelActions from 'dashboard/components/widgets/conversation/conversationBulkActions/LabelActions.vue';
 import Policy from 'dashboard/components/policy.vue';
@@ -96,15 +95,39 @@ const handleAssignLabels = labels => {
   <div
     class="sticky top-0 z-10 bg-gradient-to-b from-n-background from-90% to-transparent px-6 pt-1 pb-2"
   >
-    <BulkSelectBar
-      v-model="selectionModel"
-      :all-items="allItems"
-      :select-all-label="selectAllLabel"
-      :selected-count-label="selectedCountLabel"
-      class="py-2 ltr:!pr-3 rtl:!pl-3 justify-between"
+    <div
+      class="flex items-center gap-3 py-2 ltr:pr-3 rtl:pl-3 justify-between bg-n-alpha-slate2 rounded-lg px-3 border border-n-weak"
     >
-      <template #secondary-actions>
+      <div class="flex items-center gap-3">
+        <input
+          type="checkbox"
+          :checked="
+            selectionModel.size === allItems.length && allItems.length > 0
+          "
+          :indeterminate="
+            selectionModel.size > 0 && selectionModel.size < allItems.length
+          "
+          class="w-4 h-4 text-n-brand border-n-weak rounded focus:ring-n-brand"
+          @change="
+            selectionModel = $event.target.checked
+              ? new Set(allItems.map(item => item.id))
+              : new Set()
+          "
+        />
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ selectedCountLabel }}
+        </span>
         <Button
+          v-if="selectedCount > 0 && selectedCount < totalVisibleContacts"
+          sm
+          ghost
+          slate
+          :label="selectAllLabel"
+          class="!px-1.5"
+          @click="emit('toggleAll', true)"
+        />
+        <Button
+          v-if="selectedCount > 0"
           sm
           ghost
           slate
@@ -112,56 +135,54 @@ const handleAssignLabels = labels => {
           class="!px-1.5"
           @click="emitClearSelection"
         />
-      </template>
-      <template #actions>
-        <div class="flex items-center gap-2 ml-auto">
-          <div
-            v-on-click-outside="closeLabelSelector"
-            class="relative flex items-center"
+      </div>
+      <div class="flex items-center gap-2 ml-auto">
+        <div
+          v-on-click-outside="closeLabelSelector"
+          class="relative flex items-center"
+        >
+          <Button
+            sm
+            faded
+            slate
+            icon="i-lucide-tags"
+            :label="t('CONTACTS_BULK_ACTIONS.ASSIGN_LABELS')"
+            :disabled="!selectedCount || isLoading"
+            :is-loading="isLoading"
+            class="[&>span:nth-child(2)]:hidden sm:[&>span:nth-child(2)]:inline w-fit"
+            @click="toggleLabelSelector"
+          />
+          <transition
+            enter-active-class="transition ease-out duration-100"
+            enter-from-class="transform opacity-0 scale-95"
+            enter-to-class="transform opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-75"
+            leave-from-class="transform opacity-100 scale-100"
+            leave-to-class="transform opacity-0 scale-95"
           >
-            <Button
-              sm
-              faded
-              slate
-              icon="i-lucide-tags"
-              :label="t('CONTACTS_BULK_ACTIONS.ASSIGN_LABELS')"
-              :disabled="!selectedCount || isLoading"
-              :is-loading="isLoading"
-              class="[&>span:nth-child(2)]:hidden sm:[&>span:nth-child(2)]:inline w-fit"
-              @click="toggleLabelSelector"
+            <LabelActions
+              v-if="showLabelSelector"
+              class="[&>.triangle]:!hidden [&>div>button]:!hidden ltr:!right-0 rtl:!left-0 top-8 mt-0.5"
+              @assign="handleAssignLabels"
             />
-            <transition
-              enter-active-class="transition ease-out duration-100"
-              enter-from-class="transform opacity-0 scale-95"
-              enter-to-class="transform opacity-100 scale-100"
-              leave-active-class="transition ease-in duration-75"
-              leave-from-class="transform opacity-100 scale-100"
-              leave-to-class="transform opacity-0 scale-95"
-            >
-              <LabelActions
-                v-if="showLabelSelector"
-                class="[&>.triangle]:!hidden [&>div>button]:!hidden ltr:!right-0 rtl:!left-0 top-8 mt-0.5"
-                @assign="handleAssignLabels"
-              />
-            </transition>
-          </div>
-          <Policy :permissions="['administrator']">
-            <Button
-              v-tooltip.bottom="t('CONTACTS_BULK_ACTIONS.DELETE_CONTACTS')"
-              sm
-              faded
-              ruby
-              icon="i-lucide-trash"
-              :label="t('CONTACTS_BULK_ACTIONS.DELETE_CONTACTS')"
-              :aria-label="t('CONTACTS_BULK_ACTIONS.DELETE_CONTACTS')"
-              :disabled="!selectedCount || isLoading"
-              :is-loading="isLoading"
-              class="!px-1.5 [&>span:nth-child(2)]:hidden"
-              @click="emit('deleteSelected')"
-            />
-          </Policy>
+          </transition>
         </div>
-      </template>
-    </BulkSelectBar>
+        <Policy :permissions="['administrator']">
+          <Button
+            v-tooltip.bottom="t('CONTACTS_BULK_ACTIONS.DELETE_CONTACTS')"
+            sm
+            faded
+            ruby
+            icon="i-lucide-trash"
+            :label="t('CONTACTS_BULK_ACTIONS.DELETE_CONTACTS')"
+            :aria-label="t('CONTACTS_BULK_ACTIONS.DELETE_CONTACTS')"
+            :disabled="!selectedCount || isLoading"
+            :is-loading="isLoading"
+            class="!px-1.5 [&>span:nth-child(2)]:hidden"
+            @click="emit('deleteSelected')"
+          />
+        </Policy>
+      </div>
+    </div>
   </div>
 </template>

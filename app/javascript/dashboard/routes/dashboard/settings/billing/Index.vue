@@ -3,11 +3,9 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMapGetter, useStore } from 'dashboard/composables/store.js';
 import { useAccount } from 'dashboard/composables/useAccount';
-import { useCaptain } from 'dashboard/composables/useCaptain';
 import { format } from 'date-fns';
 import sessionStorage from 'shared/helpers/sessionStorage';
 
-import BillingMeter from './components/BillingMeter.vue';
 import BillingCard from './components/BillingCard.vue';
 import BillingHeader from './components/BillingHeader.vue';
 import DetailItem from './components/DetailItem.vue';
@@ -17,13 +15,6 @@ import ButtonV4 from 'next/button/Button.vue';
 
 const router = useRouter();
 const { currentAccount, isOnChatwootCloud } = useAccount();
-const {
-  captainEnabled,
-  captainLimits,
-  documentLimits,
-  responseLimits,
-  fetchLimits,
-} = useCaptain();
 
 const uiFlags = useMapGetter('accounts/getUIFlags');
 const store = useStore();
@@ -71,7 +62,6 @@ const hasABillingPlan = computed(() => {
 const fetchAccountDetails = async () => {
   if (!hasABillingPlan.value) {
     await store.dispatch('accounts/subscription');
-    fetchLimits();
   }
 };
 
@@ -171,40 +161,6 @@ onMounted(handleBillingPageLogic);
               :value="subscriptionRenewsOn"
             />
           </div>
-        </BillingCard>
-        <BillingCard
-          v-if="captainEnabled"
-          :title="$t('BILLING_SETTINGS.CAPTAIN.TITLE')"
-          :description="$t('BILLING_SETTINGS.CAPTAIN.DESCRIPTION')"
-        >
-          <template #action>
-            <ButtonV4 sm faded slate disabled>
-              {{ $t('BILLING_SETTINGS.CAPTAIN.BUTTON_TXT') }}
-            </ButtonV4>
-          </template>
-          <div v-if="captainLimits && responseLimits" class="px-5">
-            <BillingMeter
-              :title="$t('BILLING_SETTINGS.CAPTAIN.RESPONSES')"
-              v-bind="responseLimits"
-            />
-          </div>
-          <div v-if="captainLimits && documentLimits" class="px-5">
-            <BillingMeter
-              :title="$t('BILLING_SETTINGS.CAPTAIN.DOCUMENTS')"
-              v-bind="documentLimits"
-            />
-          </div>
-        </BillingCard>
-        <BillingCard
-          v-else
-          :title="$t('BILLING_SETTINGS.CAPTAIN.TITLE')"
-          :description="$t('BILLING_SETTINGS.CAPTAIN.UPGRADE')"
-        >
-          <template #action>
-            <ButtonV4 sm solid slate @click="onClickBillingPortal">
-              {{ $t('CAPTAIN.PAYWALL.UPGRADE_NOW') }}
-            </ButtonV4>
-          </template>
         </BillingCard>
 
         <BillingHeader

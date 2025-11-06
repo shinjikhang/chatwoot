@@ -3,12 +3,11 @@ import { computed } from 'vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import SettingsLayout from '../SettingsLayout.vue';
 import SamlSettings from './components/SamlSettings.vue';
-import SamlPaywall from './components/SamlPaywall.vue';
 
 import { usePolicy } from 'dashboard/composables/usePolicy';
 import { INSTALLATION_TYPES } from 'dashboard/constants/installationTypes';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
-const { shouldShow, shouldShowPaywall } = usePolicy();
+const { shouldShow } = usePolicy();
 
 const shouldShowSaml = computed(() =>
   shouldShow(
@@ -17,7 +16,6 @@ const shouldShowSaml = computed(() =>
     [INSTALLATION_TYPES.CLOUD, INSTALLATION_TYPES.ENTERPRISE]
   )
 );
-const showPaywall = computed(() => shouldShowPaywall('saml'));
 </script>
 
 <template>
@@ -34,8 +32,7 @@ const showPaywall = computed(() => shouldShowPaywall('saml'));
       />
     </template>
     <template #body>
-      <SamlPaywall v-if="showPaywall" />
-      <SamlSettings v-else-if="shouldShowSaml" />
+      <SamlSettings v-if="shouldShowSaml" />
     </template>
   </SettingsLayout>
 </template>

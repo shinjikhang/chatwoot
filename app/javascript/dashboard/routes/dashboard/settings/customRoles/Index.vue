@@ -4,7 +4,6 @@ import SettingsLayout from '../SettingsLayout.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
 import CustomRoleModal from './component/CustomRoleModal.vue';
 import CustomRoleTableBody from './component/CustomRoleTableBody.vue';
-import CustomRolePaywall from './component/CustomRolePaywall.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -146,8 +145,7 @@ const confirmDeletion = () => {
     </template>
 
     <template #body>
-      <CustomRolePaywall v-if="isBehindAPaywall" />
-      <table v-else class="min-w-full overflow-x-auto divide-y divide-n-weak">
+      <table class="min-w-full overflow-x-auto divide-y divide-n-weak">
         <thead>
           <th
             v-for="thHeader in tableHeaders"
