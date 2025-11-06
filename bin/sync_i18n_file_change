@@ -26,25 +26,23 @@ if [ -n "$STAGED_EN_INDEX" ]; then
     # Keep track if any copies were made
     COPIES_MADE=false
 
-    # Loop through all directories in locales folder
-    for dir in app/javascript/dashboard/i18n/locale/*/; do
-        # Skip the 'en' directory since it's the source
-        if [ "$dir" != "app/javascript/dashboard/i18n/locale/en/" ]; then
-            # Copy the file
-            cp "$SOURCE_FILE" "$dir"
+    # Sync only to Vietnamese locale
+    VI_DIR="app/javascript/dashboard/i18n/locale/vi/"
+    if [ -d "$VI_DIR" ]; then
+        # Copy the file
+        cp "$SOURCE_FILE" "$VI_DIR"
 
-            # Stage the copied file
-            git add "${dir}index.js"
+        # Stage the copied file
+        git add "${VI_DIR}index.js"
 
-            echo "Copied and staged index.js to $dir"
-            COPIES_MADE=true
-        fi
-    done
+        echo "Copied and staged index.js to $VI_DIR"
+        COPIES_MADE=true
+    fi
 
     if [ "$COPIES_MADE" = true ]; then
-        echo -e "${GREEN}Successfully synced en/index.js to all locale folders${NC}"
+        echo -e "${GREEN}Successfully synced en/index.js to Vietnamese locale${NC}"
     else
-        echo "No other locale folders found to sync to"
+        echo "Vietnamese locale folder not found"
     fi
 fi
 
